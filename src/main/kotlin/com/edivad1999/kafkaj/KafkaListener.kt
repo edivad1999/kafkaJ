@@ -17,22 +17,92 @@ import javax.swing.plaf.basic.BasicProgressBarUI
 import kotlin.math.roundToInt
 
 class KafkaListener : LafManagerListener {
-//    init {
-//        LafManagerListener.TOPIC.subscribe(this, this)
-//        updateProgressBarUi()
-//    }
 
     private fun updateProgressBarUi() {
         UIManager.put("ProgressBarUI", KafkaJInstaller::class.java.name)
         UIManager.getDefaults()[KafkaJInstaller::class.java.name] = KafkaJInstaller::class.java
+        UIManager.put(
+            "MemoryIndicator.usedBackground",
+            JBColor(
+                KafkaProgressBarUi.FLAG_PURPLE,
+                KafkaProgressBarUi.FLAG_PURPLE,
+            ),
+        )
+        overrideBluePalette()
+        val keys = listOf(
+            "ActionButton.focusedBorderColor", "Button.default.endBackground",
+            "Button.default.endBorderColor",
+            "Button.default.focusColor",
+            "Button.default.startBackground",
+            "Button.default.startBorderColor",
+            "Component.focusColor",
+            "DragAndDrop.borderColor",
+            "HelpBrowser.titleHighlightForeground",
+            "RecentProject.Color5.Avatar.Start",
+            "TabbedPane.underlineColor",
+            "Tooltip.Learning.background",
+            "Tooltip.Learning.borderColor",
+            "ToolWindow.Button.selectedBackground",
+            "RunWidget.background",
+        )
+
+        UIManager.put(
+            "RunWidget.leftHoverBackground",
+            JBColor(
+                KafkaProgressBarUi.FLAG_PURPLE,
+                KafkaProgressBarUi.FLAG_PURPLE,
+            ).darker(),
+        )
+
+        keys.forEach {
+            UIManager.put(
+                it,
+                JBColor(
+                    KafkaProgressBarUi.FLAG_PURPLE,
+                    KafkaProgressBarUi.FLAG_PURPLE,
+                ),
+            )
+        }
+    }
+
+    fun overrideBluePalette() {
+        val prefix = "ColorPalette.Blue"
+        val baseColor = JBColor(
+            KafkaProgressBarUi.FLAG_PURPLE,
+            KafkaProgressBarUi.FLAG_PURPLE,
+        )
+        for (i in 1..11) {
+            val diff = 6 - i
+            val newColor = when {
+                diff == 0 -> baseColor
+                diff < 0 -> {
+                    var newColor = baseColor
+                    repeat(diff) {
+                        newColor = JBColor(newColor.darker(), newColor.brighter())
+                    }
+                    newColor
+                }
+
+                diff > 0 -> {
+                    var newColor = baseColor
+                    repeat(diff) {
+                        newColor = JBColor(newColor.brighter(), newColor.darker())
+                    }
+                    newColor
+                }
+
+                else -> baseColor
+            }
+            UIManager.put(
+                prefix + i,
+                newColor,
+            )
+        }
     }
 
     override fun lookAndFeelChanged(source: LafManager) {
         updateProgressBarUi()
     }
-
-//    override fun dispose() {
-//    }
 }
 
 class KafkaProgressBarUi : BasicProgressBarUI() {
@@ -160,9 +230,8 @@ class KafkaProgressBarUi : BasicProgressBarUI() {
         val availableHeight = (progressBar.height - insets.vertical).toFloat()
 
         val progress = progressBar.value.toFloat() / progressBar.maximum
-        val borderThickness = borderInsets.top.toFloat()
-        val barWidth = ((availableWidth - 2 * borderThickness) * progress + iconSize * progress)
-        val barHeight = availableHeight - 2 * borderThickness
+        val barWidth = ((availableWidth - 2) * progress + iconSize * progress)
+        val barHeight = availableHeight - 2
 
         if (availableWidth <= 0 || availableHeight <= 0) {
             return
@@ -173,14 +242,14 @@ class KafkaProgressBarUi : BasicProgressBarUI() {
         doAnimationTick(barWidth.toInt())
 
         g2d.drawLine(
-            x = x + borderThickness,
-            y = y + borderThickness,
-            barWidth = (barWidth - iconSize / 2f).coerceIn(0f..(availableWidth - 2 * borderThickness)),
+            x = x,
+            y = y,
+            barWidth = (barWidth - iconSize / 2f).coerceIn(0f..(availableWidth - 2)),
             barHeight = barHeight,
         )
 
         g2d.drawKafka(
-            barY = y + borderThickness,
+            barY = y,
             barHeight = barHeight,
             xOffset = x + barWidth - iconSize / 2f,
 
@@ -197,7 +266,7 @@ class KafkaProgressBarUi : BasicProgressBarUI() {
         val barArc = scale(ARC_SIZE)
         val barReducedHeight = barHeight / 3f
         val path = RoundRectangle2D.Float(x, y + barReducedHeight, barWidth, barReducedHeight, barArc, barArc)
-        paint = Color.white
+        paint = JBColor.WHITE
         fill(path)
         val offset = (progressBar.width / 4) + if (isIndeterminate) iconOffsetX * 10 else (barWidth / 4).toInt()
         paint = GradientPaint(
@@ -212,32 +281,10 @@ class KafkaProgressBarUi : BasicProgressBarUI() {
         fill(path)
         paint = borderColor
         draw(path)
-
-//        repeat((barWidth / iconBg.iconWidth).toInt()) {
-//            if (it.even()) {
-//                iconBg.paintIcon(
-//                    progressBar,
-//                    this,
-//                    it * iconBg.iconWidth + x.toInt(),
-//                    (y + barReducedHeight).toInt(),
-//                )
-//            } else {
-//                iconBgReversed.paintIcon(
-//                    progressBar,
-//                    this,
-//                    it * iconBg.iconWidth + x.toInt(),
-//                    (y + barReducedHeight).toInt(),
-//                )
-//            }
-//        }
     }
 
     private fun Graphics2D.drawKafka(barY: Float, barHeight: Float, xOffset: Float) {
         val yOffset = barY + barHeight / 2f - icon.iconHeight / 2f
-
-        println(icon.iconHeight)
-        println(icon.iconWidth)
-
         icon.paintIcon(
             progressBar,
             this,
@@ -249,11 +296,10 @@ class KafkaProgressBarUi : BasicProgressBarUI() {
     override fun getBoxLength(availableLength: Int, otherDimension: Int): Int = availableLength
 
     companion object {
-        val overlayPx = 32
 
-        private const val FLAG_PURPLE = 0x733558
+        const val FLAG_PURPLE = 0x733558
 
-        private val FLAG_PURPLE_WHITE = Color(115, 53, 88, 180)
+        private val FLAG_PURPLE_WHITE = JBColor(Color(115, 53, 88, 180), Color(115, 53, 88, 180))
 
         private val defaultIconSize
             get() = scale(20)
