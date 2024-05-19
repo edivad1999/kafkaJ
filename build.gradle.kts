@@ -43,7 +43,7 @@ tasks {
     // Set the JVM compatibility versions
 
     patchPluginXml {
-        sinceBuild = "222.*"
+        sinceBuild = "23.*"
         untilBuild = ""
     }
 
