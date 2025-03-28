@@ -32,6 +32,7 @@ class KafkaAppLifecycleListener : AppLifecycleListener {
 }
 
 class KafkaDynamicPluginListener : DynamicPluginListener {
+
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
         if (pluginDescriptor.pluginId == PluginId.getId("com.edivad1999.kafkaJ")) {
             service<KafkaListener>()
