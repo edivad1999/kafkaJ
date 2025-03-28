@@ -190,8 +190,7 @@ class KafkaProgressBarUi : BasicProgressBarUI() {
 
     private fun getPreferredStripeHeight(): Int {
         val ho = progressBar.getClientProperty("ProgressBar.stripeWidth")
-        return ho?.toString()?.toIntOrNull()?.let { scale(it.coerceAtLeast(12)) }
-            ?: defaultIconSize
+        return ho?.toString()?.toIntOrNull()?.let { scale(it.coerceAtLeast(12)) } ?: defaultIconSize
     }
 
     override fun paintIndeterminate(g2d: Graphics, c: JComponent) {
