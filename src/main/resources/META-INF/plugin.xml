@@ -1,34 +1,36 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-  <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-  <id>com.edivad1999.kafkaJ</id>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.edivad1999.kafkaJ</id>
 
-  <!-- Public plugin name should be written in Title Case.
-       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-  <name>KafkaJ</name>
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>KafkaJ</name>
 
-  <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-  <vendor email="davide.magli99@gmail.com" url="https://github.com/edivad1999/kafkaJ">edivad1999</vendor>
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="davide.magli99@gmail.com" url="https://github.com/edivad1999/kafkaJ">edivad1999</vendor>
 
-  <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-       Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
-       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
-  <description><![CDATA[
-   Kafka replaces loadings<br>
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+   KafkaJ is a plugin that replaces the standard IntelliJ IDEA progress bar with a Kafka-themed progress bar. 
+   It customizes the loading indicators throughout the IDE with a purple Kafka-themed design.
   ]]></description>
 
-  <!-- Product and plugin compatibility requirements.
-       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-  <depends>com.intellij.modules.platform</depends>
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
 
-  <!-- Extension points defined by the plugin.
-       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-  <extensions defaultExtensionNs="com.intellij">
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
 
-  </extensions>
-
-  <applicationListeners>
-    <listener class="com.edivad1999.kafkaj.KafkaListener"
-              topic="com.intellij.ide.ui.LafManagerListener"/>
-  </applicationListeners>
+    <applicationListeners>
+        <listener class="com.edivad1999.kafkaj.KafkaDynamicPluginListener"
+                  topic="com.intellij.ide.plugins.DynamicPluginListener"/>
+        <listener class="com.edivad1999.kafkaj.KafkaAppLifecycleListener"
+                  topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
 </idea-plugin>

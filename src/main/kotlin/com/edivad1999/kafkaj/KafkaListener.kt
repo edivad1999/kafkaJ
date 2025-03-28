@@ -1,7 +1,15 @@
 package com.edivad1999.kafkaj
 
+import com.intellij.application.subscribe
+import com.intellij.ide.AppLifecycleListener
+import com.intellij.ide.plugins.DynamicPluginListener
+import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.ui.LafManager
 import com.intellij.ide.ui.LafManagerListener
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.ui.JBColor
 import com.intellij.ui.scale.JBUIScale.scale
 import com.intellij.util.ui.GraphicsUtil
@@ -16,9 +24,27 @@ import javax.swing.UIManager
 import javax.swing.plaf.basic.BasicProgressBarUI
 import kotlin.math.roundToInt
 
-class KafkaListener : LafManagerListener {
+class KafkaAppLifecycleListener : AppLifecycleListener {
 
-    private fun updateProgressBarUi() {
+    override fun appFrameCreated(commandLineArgs: MutableList<String>) {
+        service<KafkaListener>()
+    }
+}
+class KafkaDynamicPluginListener : DynamicPluginListener {
+
+    override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
+        if (pluginDescriptor.pluginId == PluginId.getId("com.edivad1999.kafkaJ")) {
+            service<KafkaListener>()
+        }
+    }
+}
+@Service
+class KafkaListener : LafManagerListener, Disposable {
+    init {
+        LafManagerListener.TOPIC.subscribe(this, this)
+        updateProgressBarUi()
+    }
+    fun updateProgressBarUi() {
         UIManager.put("ProgressBarUI", KafkaJInstaller::class.java.name)
         UIManager.getDefaults()[KafkaJInstaller::class.java.name] = KafkaJInstaller::class.java
         UIManager.put(
@@ -102,6 +128,10 @@ class KafkaListener : LafManagerListener {
 
     override fun lookAndFeelChanged(source: LafManager) {
         updateProgressBarUi()
+    }
+
+    override fun dispose() {
+        //
     }
 }
 
@@ -253,7 +283,7 @@ class KafkaProgressBarUi : BasicProgressBarUI() {
             barHeight = barHeight,
             xOffset = x + barWidth - iconSize / 2f,
 
-        )
+            )
     }
 
     private fun Graphics2D.drawLine(
