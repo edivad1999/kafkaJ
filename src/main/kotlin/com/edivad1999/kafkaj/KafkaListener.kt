@@ -30,6 +30,7 @@ class KafkaAppLifecycleListener : AppLifecycleListener {
         service<KafkaListener>()
     }
 }
+
 class KafkaDynamicPluginListener : DynamicPluginListener {
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
         if (pluginDescriptor.pluginId == PluginId.getId("com.edivad1999.kafkaJ")) {
@@ -37,12 +38,14 @@ class KafkaDynamicPluginListener : DynamicPluginListener {
         }
     }
 }
+
 @Service
 class KafkaListener : LafManagerListener, Disposable {
     init {
         LafManagerListener.TOPIC.subscribe(this, this)
         updateProgressBarUi()
     }
+
     fun updateProgressBarUi() {
         UIManager.put("ProgressBarUI", KafkaJInstaller::class.java.name)
         UIManager.getDefaults()[KafkaJInstaller::class.java.name] = KafkaJInstaller::class.java
