@@ -54,13 +54,39 @@ jobs:
         id: plugin_version
         run: echo "VERSION=${{ env.VERSION_NAME }}" >> $GITHUB_ENV
 
+      - name: Get Commit Messages
+        id: get_commits
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # Get commit messages since last tag, or last 10 commits if no tag exists
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            # No previous tag found, get last 10 commits
+            COMMIT_LOG=$(git log -10 --pretty=format:"- %s (%h)" --no-merges)
+          else
+            # Get commits since last tag
+            COMMIT_LOG=$(git log $LAST_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          # Escape newlines for GitHub Actions
+          COMMIT_LOG="${COMMIT_LOG//'%'/'%25'}"
+          COMMIT_LOG="${COMMIT_LOG//$'\n'/'%0A'}"
+          COMMIT_LOG="${COMMIT_LOG//$'\r'/'%0D'}"
+          # Set output
+          echo "COMMIT_LOG<<EOF" >> $GITHUB_ENV
+          echo "$COMMIT_LOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Create GitHub Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ env.VERSION_NAME }}
           name: Release v${{ env.VERSION_NAME }}
-          body: "Automated release for build ${{ env.VERSION_NAME }}"
+          body: |
+            Automated release for build ${{ env.VERSION_NAME }}
+
+            ## Changes in this release:
+            ${{ env.COMMIT_LOG }}
           draft: false
           prerelease: false
           files: build/distributions/*.zip
